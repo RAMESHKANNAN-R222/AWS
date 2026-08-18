@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TaskVault Cloud Pro - Serverless Web Application with AWS Lambda, API Gateway, DynamoDB, S3, and GitHub Pages.">
+    <title>TaskVault Cloud Pro | Serverless AWS & GitHub Workspace</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Animated Neon Ambient Background -->
+    <div class="app-background">
+        <div class="glow-sphere sphere-1"></div>
+        <div class="glow-sphere sphere-2"></div>
+        <div class="glow-sphere sphere-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Application Shell Wrapper -->
+    <div class="layout-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar" id="app-header">
+            <div class="brand-section">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>TaskVault <span class="version-tag">v2.0</span></h1>
+                    <span class="badge-aws"><span class="pulse-icon"></span> AWS Cloud Native</span>
+                </div>
+            </div>
+
+            <!-- AWS Connection Status Pill Card -->
+            <div class="api-status-card" id="api-status-card">
+                <div class="status-header">
+                    <div class="status-indicator">
+                        <span class="status-dot" id="status-dot"></span>
+                        <span class="status-label" id="status-label">Local Demo Mode</span>
+                    </div>
+                    <button class="icon-btn-sm" id="btn-test-connection" title="Test Gateway Ping">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </button>
+                </div>
+                <p class="status-endpoint" id="status-endpoint">Mocking AWS API Gateway</p>
+                <button class="btn-text-action" id="toggle-config-modal-btn">
+                    <span>Configure AWS Endpoint</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+            </div>
+
+            <!-- Category Navigation -->
+            <nav class="nav-menu" aria-label="Main Navigation">
+                <div class="nav-section-title">CATEGORIES</div>
+                <button class="nav-item active" data-category="all">
+                    <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg></div>
+                    <span>All Cloud Tasks</span>
+                    <span class="nav-count" id="count-all">0</span>
+                </button>
+                <button class="nav-item" data-category="Work">
+                    <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+                    <span>Work</span>
+                    <span class="nav-count" id="count-work">0</span>
+                </button>
+                <button class="nav-item" data-category="DevOps">
+                    <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg></div>
+                    <span>DevOps & AWS</span>
+                    <span class="nav-count" id="count-devops">0</span>
+                </button>
+                <button class="nav-item" data-category="Personal">
+                    <div class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                    <span>Personal</span>
+                    <span class="nav-count" id="count-personal">0</span>
+                </button>
+            </nav>
+
+            <!-- AWS Stack Component Card -->
+            <div class="aws-tech-card" id="open-arch-modal-btn">
+                <div class="card-header-mini">
+                    <h3>AWS Serverless Stack</h3>
+                    <span class="info-icon">ℹ️</span>
+                </div>
+                <ul class="aws-services-list">
+                    <li><span class="service-tag lambda">Lambda</span> 5 Microservices</li>
+                    <li><span class="service-tag apigw">API Gateway</span> CORS REST</li>
+                    <li><span class="service-tag dynamodb">DynamoDB</span> Pay-Per-Request</li>
+                    <li><span class="service-tag s3">S3 Bucket</span> Presigned URL</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Workspace View -->
+        <main class="app-main">
+            <!-- Header Search & Controls Bar -->
+            <header class="top-bar">
+                <div class="search-box">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="search-input" placeholder="Search tasks by title, category, or notes...">
+                    <button class="clear-search hidden" id="clear-search-btn">&times;</button>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="refresh-btn" title="Sync with AWS DynamoDB">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        <span>Sync</span>
+                    </button>
+                    <button class="btn btn-primary" id="open-create-modal-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <span>New Cloud Task</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Metrics Overview Banner -->
+            <section class="stats-grid" aria-label="System Metrics">
+                <article class="stat-card">
+                    <div class="stat-icon total"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-total-count">0</span>
+                        <span class="stat-label">DynamoDB Records</span>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-pending-count">0</span>
+                        <span class="stat-label">In Progress</span>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon completed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-completed-count">0</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon attachments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-s3-count">0</span>
+                        <span class="stat-label">S3 Attachments</span>
+                    </div>
+                </article>
+            </section>
+
+            <!-- Tasks Main Board -->
+            <section class="tasks-section">
+                <div class="section-header">
+                    <div class="section-title-wrap">
+                        <h2 id="current-category-title">All Tasks</h2>
+                        <span class="record-badge" id="record-count-badge">0 Items</span>
+                    </div>
+
+                    <div class="filter-pills">
+                        <button class="pill active" data-filter="all">All</button>
+                        <button class="pill" data-filter="PENDING">In Progress</button>
+                        <button class="pill" data-filter="COMPLETED">Completed</button>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state hidden" id="empty-state">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10"/><path d="M7 12h8"/><path d="M7 16h5"/></svg>
+                    </div>
+                    <h3>No Cloud Tasks Found</h3>
+                    <p>Create a task to trigger your AWS Lambda handler and write data to DynamoDB!</p>
+                    <button class="btn btn-primary" id="empty-create-btn">Create First Task</button>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-state hidden" id="loading-state">
+                    <div class="spinner"></div>
+                    <p>Communicating with AWS API Gateway & DynamoDB...</p>
+                </div>
+
+                <!-- Task Cards Grid -->
+                <div class="tasks-grid" id="tasks-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ==========================================================================
+         MODAL DESIGN 1: NEW TASK & EDIT TASK MODAL
+         ========================================================================== -->
+    <div class="modal-overlay hidden" id="task-modal">
+        <div class="modal-card modal-glass">
+            <div class="modal-header">
+                <div class="modal-title-box">
+                    <div class="modal-icon-badge" id="modal-icon-badge">✨</div>
+                    <div>
+                        <h3 id="modal-title">Create New Cloud Task</h3>
+                        <p class="modal-subtitle">Will execute Lambda & write to AWS DynamoDB</p>
+                    </div>
+                </div>
+                <button class="modal-close" id="close-task-modal-btn" aria-label="Close Modal">&times;</button>
+            </div>
+            
+            <form id="task-form" class="modal-body">
+                <input type="hidden" id="task-id">
+
+                <!-- Task Title -->
+                <div class="form-group">
+                    <label for="task-title">Task Title <span class="required">*</span></label>
+                    <input type="text" id="task-title" required placeholder="e.g. Deploy Lambda & DynamoDB Terraform stack">
+                </div>
+
+                <!-- Category & Priority Controls -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-category">Category</label>
+                        <div class="custom-select-wrapper">
+                            <select id="task-category">
+                                <option value="Work">💼 Work</option>
+                                <option value="DevOps">☁️ DevOps & AWS</option>
+                                <option value="Personal">👤 Personal</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-priority">Priority Level</label>
+                        <div class="priority-selector">
+                            <label class="priority-option low">
+                                <input type="radio" name="priority-radio" value="Low">
+                                <span>Low</span>
+                            </label>
+                            <label class="priority-option medium">
+                                <input type="radio" name="priority-radio" value="Medium" checked>
+                                <span>Medium</span>
+                            </label>
+                            <label class="priority-option high">
+                                <input type="radio" name="priority-radio" value="High">
+                                <span>High</span>
+                            </label>
+                        </div>
+                        <input type="hidden" id="task-priority" value="Medium">
+                    </div>
+                </div>
+
+                <!-- Task Description -->
+                <div class="form-group">
+                    <label for="task-description">Description & Technical Notes</label>
+                    <textarea id="task-description" rows="3" placeholder="Add detailed requirements, architecture notes, or deployment commands..."></textarea>
+                </div>
+
+                <!-- S3 Attachment Presigned URL Upload Dropzone -->
+                <div class="form-group">
+                    <label>S3 File Attachment <span class="badge-s3">AWS S3 Direct</span></label>
+                    <div class="file-upload-box" id="file-drop-zone">
+                        <input type="file" id="file-input" class="hidden">
+                        <div class="upload-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </div>
+                        <div class="upload-info">
+                            <span id="file-upload-text" class="upload-title">Drag & drop or click to upload file</span>
+                            <span class="upload-desc">Direct to S3 via Lambda Presigned URL</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="s3-file-url">
+                    <div id="file-preview" class="file-preview hidden"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-task-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="save-task-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        <span>Save to AWS DynamoDB</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         MODAL DESIGN 2: TASK DETAILS & DYNAMODB INSPECTOR MODAL
+         ========================================================================== -->
+    <div class="modal-overlay hidden" id="detail-modal">
+        <div class="modal-card modal-glass">
+            <div class="modal-header">
+                <div class="modal-title-box">
+                    <div class="modal-icon-badge">🔍</div>
+                    <div>
+                        <h3 id="detail-task-title">Task Record Inspector</h3>
+                        <p class="modal-subtitle" id="detail-task-id">ID: task-101</p>
+                    </div>
+                </div>
+                <button class="modal-close" id="close-detail-modal-btn">&times;</button>
+            </div>
+
+            <div class="modal-body space-y-4">
+                <div class="detail-badge-group">
+                    <span class="badge" id="detail-category-badge">DevOps</span>
+                    <span class="badge" id="detail-priority-badge">High Priority</span>
+                    <span class="badge" id="detail-status-badge">COMPLETED</span>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Description</h4>
+                    <p id="detail-description-text" class="detail-text-content"></p>
+                </div>
+
+                <div class="detail-section" id="detail-attachment-container">
+                    <h4>S3 Storage Attachment</h4>
+                    <a href="#" id="detail-s3-link" target="_blank" rel="noopener" class="task-attachment">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                        <span id="detail-s3-filename">Open S3 Asset</span>
+                    </a>
+                </div>
+
+                <div class="detail-section">
+                    <h4>DynamoDB Raw JSON Schema Record</h4>
+                    <pre class="json-code-block"><code id="detail-json-code"></code></pre>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="close-detail-btn">Close Inspector</button>
+                <button type="button" class="btn btn-primary" id="edit-from-detail-btn">Edit Task</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         MODAL DESIGN 3: AWS API GATEWAY CONFIGURATION MODAL
+         ========================================================================== -->
+    <div class="modal-overlay hidden" id="config-modal">
+        <div class="modal-card modal-glass">
+            <div class="modal-header">
+                <div class="modal-title-box">
+                    <div class="modal-icon-badge">⚙️</div>
+                    <div>
+                        <h3>AWS API Gateway Settings</h3>
+                        <p class="modal-subtitle">Connect live AWS REST infrastructure or run local mock</p>
+                    </div>
+                </div>
+                <button class="modal-close" id="close-config-modal-btn">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="api-url-input">API Gateway Production Stage Base URL</label>
+                    <input type="url" id="api-url-input" placeholder="https://abc123xyz.execute-api.us-east-1.amazonaws.com/Prod">
+                    <small class="form-hint">Leave empty to use Local Mock/Demo Mode with simulated AWS latency.</small>
+                </div>
+
+                <div class="endpoint-status-box" id="endpoint-test-box">
+                    <div class="test-status-line">
+                        <span class="test-label">Endpoint Status:</span>
+                        <span class="test-result" id="test-result-text">Not Tested</span>
+                    </div>
+                    <button type="button" class="btn-text-action" id="test-ping-btn">Ping GET /tasks</button>
+                </div>
+
+                <div class="api-endpoint-guide">
+                    <h4>Configured Lambda Endpoints:</h4>
+                    <div class="endpoint-grid">
+                        <div class="ep-row"><span class="method get">GET</span> <code>/tasks</code> &rarr; Get Tasks</div>
+                        <div class="ep-row"><span class="method post">POST</span> <code>/tasks</code> &rarr; Create Task</div>
+                        <div class="ep-row"><span class="method put">PUT</span> <code>/tasks/{id}</code> &rarr; Update Task</div>
+                        <div class="ep-row"><span class="method delete">DELETE</span> <code>/tasks/{id}</code> &rarr; Delete Task</div>
+                        <div class="ep-row"><span class="method post">POST</span> <code>/upload-url</code> &rarr; S3 Presigned URL</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="reset-mock-btn">Use Mock Mode</button>
+                <button type="button" class="btn btn-primary" id="save-config-btn">Save AWS Gateway URL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         MODAL DESIGN 4: AWS STACK ARCHITECTURE MODAL
+         ========================================================================== -->
+    <div class="modal-overlay hidden" id="arch-modal">
+        <div class="modal-card modal-glass">
+            <div class="modal-header">
+                <div class="modal-title-box">
+                    <div class="modal-icon-badge">☁️</div>
+                    <div>
+                        <h3>AWS Serverless Stack Architecture</h3>
+                        <p class="modal-subtitle">Deployed with SAM Template / Terraform</p>
+                    </div>
+                </div>
+                <button class="modal-close" id="close-arch-modal-btn">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="arch-flow-box">
+                    <div class="flow-step">
+                        <div class="step-icon">🌐</div>
+                        <div class="step-details">
+                            <strong>GitHub Pages UI</strong>
+                            <span>Frontend Static Hosting</span>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">&darr; REST HTTPS</div>
+                    <div class="flow-step">
+                        <div class="step-icon">⚡</div>
+                        <div class="step-details">
+                            <strong>AWS API Gateway</strong>
+                            <span>Proxy Integration & CORS</span>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">&darr; Lambda Trigger</div>
+                    <div class="flow-step">
+                        <div class="step-icon">λ</div>
+                        <div class="step-details">
+                            <strong>AWS Lambda Functions</strong>
+                            <span>Node.js 18 Microservices</span>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">&darr; Read/Write Data</div>
+                    <div class="flow-step">
+                        <div class="step-icon">🗄️</div>
+                        <div class="step-details">
+                            <strong>AWS DynamoDB & S3</strong>
+                            <span>NoSQL Records + S3 Assets</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="close-arch-btn">Got It!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Application JavaScript Bundles -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

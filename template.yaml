@@ -1,0 +1,147 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: TaskVault Cloud - Full AWS Serverless Stack (Lambda, API Gateway, DynamoDB, S3)
+
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 256
+    Runtime: nodejs18.x
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref TasksTable
+        ATTACHMENTS_BUCKET: !Ref AttachmentsBucket
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+      AllowOrigin: "'*'"
+
+Resources:
+  # 1. DynamoDB Table for Serverless Data Storage
+  TasksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TaskVault-Tasks
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: taskId
+          AttributeType: S
+        - AttributeName: category
+          AttributeType: S
+      KeySchema:
+        - AttributeName: taskId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: CategoryIndex
+          KeySchema:
+            - AttributeName: category
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  # 2. S3 Bucket for Media & File Attachments
+  AttachmentsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "taskvault-assets-${AWS::AccountId}-${AWS::Region}"
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+              - HEAD
+            AllowedOrigins:
+              - '*'
+            MaxAge: 3000
+
+  # 3. AWS Lambda Handlers
+  GetTasksFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/
+      Handler: handlers/getTasks.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TasksTable
+      Events:
+        GetTasksApi:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: GET
+
+  CreateTaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/
+      Handler: handlers/createTask.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TasksTable
+      Events:
+        CreateTaskApi:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: POST
+
+  UpdateTaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/
+      Handler: handlers/updateTask.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TasksTable
+      Events:
+        UpdateTaskApi:
+          Type: Api
+          Properties:
+            Path: /tasks/{id}
+            Method: PUT
+
+  DeleteTaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/
+      Handler: handlers/deleteTask.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TasksTable
+      Events:
+        DeleteTaskApi:
+          Type: Api
+          Properties:
+            Path: /tasks/{id}
+            Method: DELETE
+
+  GetUploadUrlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/
+      Handler: handlers/getUploadUrl.handler
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref AttachmentsBucket
+      Events:
+        UploadUrlApi:
+          Type: Api
+          Properties:
+            Path: /upload-url
+            Method: POST
+
+Outputs:
+  ApiGatewayUrl:
+    Description: "API Gateway Endpoint Base URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+  DynamoDBTableName:
+    Description: "DynamoDB Table Name"
+    Value: !Ref TasksTable
+  S3BucketName:
+    Description: "S3 Attachments Bucket Name"
+    Value: !Ref AttachmentsBucket
